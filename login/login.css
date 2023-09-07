@@ -1,0 +1,83 @@
+#container{
+    position: relative;
+    max-width: 100%;
+    display: flexbox;
+    resize: both;
+
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    max-width: 100%;
+
+}
+
+#banner{
+    width: 100%;
+    position: relative;
+    background-color: black;
+    padding: 0px 0px;
+    height: 60px;
+    margin-top: 0;
+}
+
+#siteTitle{
+    position: absolute;
+    color: white;
+    font-size: large;
+    top: 30%;
+    left: 2.5%;
+    transform: translate(5%, 5%);
+}
+
+#loginPage{
+    position: relative;
+    border: 10px solid black;
+    left: 50vw;
+    width: 40vw;
+    height: 20vw;
+    top: -.35vw;
+    align-items: center;
+    align-content: center;
+    text-align: center;
+    /* bring your own prefixes */
+    transform: translate(-50%);
+}
+
+#login{
+    display: block;
+    text-align: center;
+    
+}
+
+input{
+    border: 2px solid black;
+    left: 16.2vw;
+}
+
+#uName{
+    position: relative;
+    display: block;
+}
+
+#pWord{
+    position: relative;
+    display: block;
+    left: 16.2vw;
+
+}
+
+#loginButton{
+    text-align: center;
+
+
+}
+
+#registerButton{
+    display: inline-block;
+}
