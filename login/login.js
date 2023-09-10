@@ -1,59 +1,110 @@
+
 let loginForm = document.getElementById("login");
-const loginButton = document.getElementById("loginButton");
-const registerButton = document.getElementById("registerButton");
+let loginButton = document.getElementById("loginButton");
+let registerButton = document.getElementById("registerButton");
 
-// Oh so scary consts
-// Use two Arrays, and push back to that array when registar?
-let usernames = ["admin"];
-let passwords = ["test123"];
+export function makeSureLocalStorageExsists(){
+    let storedArrayParse = JSON.parse(localStorage.getItem("storedUsernames"));
+    let storedPasswordParse = JSON.parse(localStorage.getItem("storedPasswords"));
+    let currentBalanceParse = JSON.parse(localStorage.getItem("currentBalances"));
+    /* Make sure that the local storage is initilized! */
+    if(storedArrayParse){
 
-let globalUsername = null;
-
-let index1;
-let index2;
-loginButton.addEventListener("click", (event) =>{
-    event.preventDefault();
-    let username = loginForm.uNameE.value;
-    let password = loginForm.pWordE.value;
-    for(let j = 0; j < usernames.length; j++){
-        if(username === usernames[j]){
-            index1 = j;
-        }  
-    }
-
-    for(let i = 0; i < passwords.length; i++){
-        if(password === passwords[i]){
-            index2 = i;
-        }
-        console.log("h");
-    }
-
-    console.log(index1, index2);
-    if(index1 === index2){
-        alert("logged in");
-        globalUsername = username;
     } else {
-        console.log("fuck");
-    }
-    index1 = 0; index2 = 0;
-})
+        let emptyArray = ["admin"];
+        let balanceArray = [0];
+        let stringifyArray = JSON.stringify(emptyArray);
+        let stringifyBalance = JSON.stringify(balanceArray);
 
-export function getUsername(){
-    if(globalUsername !== null){
-        return globalUsername;
+        localStorage.setItem("storedUsernames", stringifyArray);
+        localStorage.setItem("storedPasswords", stringifyArray);
+        localStorage.setItem("currentBalances", stringifyBalance);
+
+        storedArrayParse = JSON.parse(localStorage.getItem("storedUsernames"));
+        storedPasswordParse = JSON.parse(localStorage.getItem("storedPasswords"));
+        currentBalanceParse = JSON.parse(localStorage.getItem("currentBalances"));
     }
 }
 
+loginButton.addEventListener("click", (event)=>{
+    event.preventDefault();
+    makeSureLocalStorageExsists();
+    let username = loginForm.uNameE.value;
+    let password = loginForm.pWordE.value;
 
+    let index1;
+    let index2 = Math.floor(Math.random() * 100000 + 1);    
+
+    let storedArrayParse = JSON.parse(localStorage.getItem("storedUsernames"));
+    let storedPasswordParse = JSON.parse(localStorage.getItem("storedPasswords"));
+    let currentBalanceParse = JSON.parse(localStorage.getItem("currentBalances"));
+
+    for(let i = 0; i < storedArrayParse.length; i++){
+        if(username === storedArrayParse[i]){
+            index1 = i;
+        }
+    }
+
+    for(let i = 0; i < storedPasswordParse.length; i++){
+        if(password === storedPasswordParse[i]){
+            index2 = i;
+        }
+    }
+
+    let currentLoggedInUser = [];
+
+    if(index1 === index2){
+        alert("Logged in, Welcome " + username);
+        currentLoggedInUser.push(username);
+        currentLoggedInUser.push(currentBalanceParse[index1]);
+
+        let curUser = JSON.stringify(currentLoggedInUser);
+        localStorage.setItem("currentUserInfo", curUser);
+
+        window.location.href = 'blank.html';
+    } else {
+        console.log("error");
+    }
+    
+    index1 = 0, index2 = 0;
+})
+
+/* This is fine */
 registerButton.addEventListener("click", (event)=>{
     event.preventDefault();
     let username = loginForm.uNameE.value;
     let password = loginForm.pWordE.value;
-    if(usernames.includes(username)){
-        alert("Username already taken");
-    } else {
-        usernames.push(username);
-        passwords.push(password);
-        console.log(usernames, passwords);
+
+    const newUserBalance = 1000;
+    /* Make sure that the local storage is initilized! */
+    makeSureLocalStorageExsists();
+
+    let storedArrayParse = JSON.parse(localStorage.getItem("storedUsernames"));
+    let storedPasswordParse = JSON.parse(localStorage.getItem("storedPasswords"));
+    let currentBalanceParse = JSON.parse(localStorage.getItem("currentBalances"));
+
+    console.log(storedArrayParse);
+    for(let i = 0; i < storedArrayParse.length; i++){
+        if(username === storedArrayParse[i]){
+            alert("Username Already Taken");
+            return;
+        }
     }
+
+    storedArrayParse.push(username);
+    storedPasswordParse.push(password);
+    currentBalanceParse.push(newUserBalance);
+
+    let usernameStore = JSON.stringify(storedArrayParse);
+    let passwordStore = JSON.stringify(storedPasswordParse);
+    let balanceStore = JSON.stringify(currentBalanceParse);
+
+    localStorage.clear();
+
+    localStorage.setItem("storedUsernames", usernameStore);
+    localStorage.setItem("storedPasswords", passwordStore);
+    localStorage.setItem("currentBalances", balanceStore);
 })
+
+
+

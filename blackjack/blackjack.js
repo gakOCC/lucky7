@@ -1,103 +1,145 @@
-function generateRandomNumber(){
-    return Math.floor(Math.random() * 11 + 1);
-}
+import { setUserBet, checkUserBet}  from "./global.js";
 
-let cardArray = [];
+let currentBet = document.getElementById("bet")// Put html thing here
 let uInfo = document.getElementById("userInfo");
-let dInfo = document.getElementById("dealerInfo");
+let dinfo = document.getElementById("dealerInfo");
+let current = document.getElementById("balance");
 
+let getCards = document.getElementById("getCards");
+getCards.addEventListener("click", () =>{
+    getPlayerCards();
+    currentBet = document.getElementById("bet").value;
+    getCards.style.display = 'none';
+})
 
-function generateUserCards(){
-    let sum = 0;
-    for(let i = 0; i < 2; i++){
-        cardArray[i] = generateRandomNumber();
-        sum += cardArray[i];
-    }
-    if(sum === 21){
-        cardArray = [];
+let hitCards = document.getElementById("hit");
+hitCards.addEventListener("click", () =>{
+    hitPlayerCards();
+})
+
+let playerStandButton = document.getElementById("stand");
+playerStandButton.addEventListener("click", () =>{
+    playerStand();
+})
+
+function generateRandomNumbers(){
+    return Math.floor(Math.random() * 10 + 1)
+}
+
+function playerWin(bet){
+    bet *= 1.5;
+    getCards.style.display = 'block';
+    alert("You Won!");
+    setUserBet(bet, 1);
+}
+
+function playerLoss(bet){
+    getCards.style.display = 'block';
+    alert("You lost!");
+    setUserBet(bet, 0);
+}
+
+function playerDraw(bet){
+    getCards.style.display = 'block';
+    alert("draw!");
+    setUserBet(bet, 1);
+
+}
+
+//User Shit
+let userCards = [];
+function getPlayerCards(){
+    let currentBalanceParse = JSON.parse(localStorage.getItem("currentUserInfo"));
+    current.innerHTML = currentBalanceParse[1] + " <- Current Balance";
+    currentBet = document.getElementById("bet").value;
+    if(checkUserBet(currentBet)){
+        userCards = [];
+        let sum = 0;
+        for(let i = 0; i < 2; i++){
+            userCards[i] = generateRandomNumbers();
+            sum += userCards[i]
+        }
+    
         while(sum === 21){
-            for(let i = 0; i < 2; i++){
-                cardArray[i] = generateRandomNumber();
-                sum += cardArray[i];
+            userCards = [];
+            for(let i = 0; i < userCards.length; i++){
+                userCards[i] = generateRandomNumbers();
+                sum += userCards[i];
             }
         }
-    }
-
-    uInfo.innerHTML = sum;
-    generateDealerCards();
-    console.log(cardArray);
-}
-
-
-/* Dealer Logic */
-let dealerCards = [];
-function generateDealerCards(){
-    let sum = 0;
-    for(let i = 0; i < 2; i++){
-        dealerCards[i] = generateRandomNumber();
-        sum += dealerCards[i];
-    }
-    if(sum > 21){ // Butt fucking ugly but whatever | I hate fixing bugs
-        dealerCards = [];
-        while(sum > 21){
-            for(let i = 0; i < 2; i++){
-                dealerCards[i] = generateRandomNumber();
-                sum += dealerCards[i];
-            }
-        }
-    }
-    dInfo.innerHTML = sum;
-}
-
-function drawDealerCard(){
-    /*Here comes the rigged part:) - The house ALWAYS. Wins ;)*/
-    let sum = 0;
-    for(let i = 0; i < 2; i++){
-        sum += dealerCards[i];
-    }
-
-    let finalDealerCard = 20;
-    while(sum != finalDealerCard){
-        sum++;
-    }
-    return sum;
-}
-
-function dealerLogic(){
-    let sum = 0;
-    for(let i = 0; i < 2; i++){
-        sum += dealerCards[i];
-    }
-
-    if(dealerCards <= 16){
-        sum = drawDealerCard();
-        return sum;
+        uInfo.innerHTML = sum;
+        getDealerCards();
     } else {
-        return sum;
+        alert("Invalid Bet Ammount! You Are Betting More Than You Have! Your Current Balance Is:" + currentBalanceParse[1] + " You are trying to bet " + currentBet);
     }
 }
 
-
-
-function userCardCheck(){
+function hitPlayerCards(){
     let sum = 0;
-    for(let i = 0; i < cardArray.length; i++){
-        sum += cardArray[i];
+    userCards.push(generateRandomNumbers());
+    for(let i = 0; i < userCards.length; i++){
+        sum += userCards[i];
     }
     if(sum > 21){
-        return "bust";
-    } else if(sum === 21){
-        return "blackjack";
+        uInfo.innerHTML = "Bust";
+        playerStandButton.style.display = 'none';
+        hitCards.style.direction = 'none';
+        playerLoss(currentBet);
+    } else {
+        uInfo.innerHTML = sum;
     }
-    return sum;
 }
 
-function hitCards(){
-    cardArray.push(generateRandomNumber());
-    for(let i = 0; i < cardArray.length; i++){
-        console.log(cardArray[i]);
+function playerStand(){
+    let dealerSum = dealerLogic();
+    let playerSum = 0;
+    for(let i = 0; i < userCards; i++){
+        playerSum += userCards[i];
     }
-    uInfo.innerHTML = userCardCheck();
-    dealerLogic();
+
+    if(playerSum > dealerSum){
+        playerWin(currentBet);
+    } else if (playerSum === dealerSum) {
+        playerDraw(currentBet);
+    } else {
+        playerLoss(currentBet);
+    }
+    hitCards.style.direction = 'none';
 }
 
+//Dealer Shit
+let dealerCards = [];
+function getDealerCards(){
+    let sum = 0;
+    for(let i = 0; i < 2; i++){
+        dealerCards[i] = generateRandomNumbers();
+        sum += dealerCards[i];
+    }
+
+    while(sum === 21){
+        dealerCards = [];
+        for(let i = 0; i < dealerCards.length; i++){
+            dealerCards[i] = generateRandomNumbers();
+            sum += dealerCards[i];
+        }
+    }
+    dinfo.innerHTML = sum;
+}
+
+//This is extremly rigged
+function dealerLogic(){
+    let sum = 0;
+    for(let i = 0; i < dealerCards.length; i++){
+        sum += dealerCards[i];
+    }
+
+    if(sum < 17){
+        sum = 21;
+        dinfo.innerHTML = sum;
+        return sum;
+    } else {
+        dinfo.innerHTML = sum;
+        return sum;
+    }
+
+}
